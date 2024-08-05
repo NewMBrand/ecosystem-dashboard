@@ -47,7 +47,7 @@ resources:
 env:
   NEXT_PUBLIC_ENVIRONMENT:
     type: kv
-    value: "production"
+    value: ${NEXT_PUBLIC_ENVIRONMENT}
   ENABLE_SITEMAP:
     type: kv
     value: "true"
