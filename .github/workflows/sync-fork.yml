@@ -12,7 +12,7 @@ on:
           - 'master'
           - 'demo'
   schedule:
-    - cron: '3 */1 * * *'
+    - cron: '20 * * * *'
 
 env:
   UPSTREAM_REPO: 'makerdao-ses/ecosystem-dashboard'
