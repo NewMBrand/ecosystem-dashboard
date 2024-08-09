@@ -45,7 +45,7 @@ jobs:
         id: sync
         shell: bash
         env:
-          BRANCHES: ${{ ( github.event_name == 'schedule' || github.event.inputs.branch == 'all' ) && 'main staging' || github.event.inputs.branch }}
+          BRANCHES: ${{ ( github.event_name == 'schedule' || github.event.inputs.branch == 'all' ) && 'master demo' || github.event.inputs.branch }}
         run: |
           for BRANCH in $BRANCHES; do
             git checkout $BRANCH
