@@ -36,7 +36,7 @@ jobs:
       - name: Add upstream
         id: add_upstream
         run: |
-          git remote add upstream git@github.com:${{ env.UPSTREAM_REPO }}.git
+          git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
 
       - name: Fetch upstream changes
         id: fetch_upstream
