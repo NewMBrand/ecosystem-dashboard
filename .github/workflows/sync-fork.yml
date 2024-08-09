@@ -20,12 +20,15 @@ env:
 jobs:
   sync_fork:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout everything
         id: checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
 
       - name: Configure git
         id: configure_git
@@ -48,14 +51,14 @@ jobs:
         run: |
           git checkout demo
           git merge upstream/demo --no-edit
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}.git demo
+          git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git demo
         
       - name: Sync master branch
         id: sync_master
         run: |
           git checkout master
           git merge upstream/master --no-edit
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}.git master
+          git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git master
 
       - name: Send an alert to PagerDuty
         id: alert
