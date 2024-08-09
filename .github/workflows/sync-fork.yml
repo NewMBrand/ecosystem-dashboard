@@ -1,0 +1,82 @@
+name: Sync fork with upstream
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch/es to sync'
+        required: true
+        type: choice
+        options:
+          - 'all'
+          - 'master'
+          - 'demo'
+  schedule:
+    - cron: '*/10 * * * *'
+
+env:
+  UPSTREAM_REPO: 'makerdao-ses/ecosystem-dashboard'
+
+jobs:
+  sync_fork:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout everything
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        id: configure_git
+        run: |
+          git config user.email "${{ secrets.SYNC_FORK_USER_EMAIL }}"
+          git config user.name "${{ vars.SYNC_FORK_USER_NAME }}"
+
+      - name: Add upstream
+        id: add_upstream
+        run: |
+          git remote add upstream git@github.com:${{ env.UPSTREAM_REPO }}.git
+
+      - name: Fetch upstream changes
+        id: fetch_upstream
+        run: |
+          git fetch upstream
+
+      - name: Sync staging branch
+        id: sync_staging
+        run: |
+          git checkout demo
+          git merge upstream/demo --no-edit
+          git push origin demo
+        
+      - name: Sync master branch
+        id: sync_master
+        run: |
+          git checkout master
+          git merge upstream/master --no-edit
+          git push origin master
+
+      - name: Send an alert to PagerDuty
+        id: alert
+        if: failure()
+        run: |
+          echo "Sending an alert to PagerDuty..."
+          curl -X POST https://events.pagerduty.com/v2/enqueue \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "routing_key": "${{ secrets.SYNC_FORK_PD_ROUTING_KEY }}",
+              "event_action": "trigger",
+              "payload": {
+                "summary": "Sync fork failed for ${{ github.repository }}",
+                "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%S")'",
+                "source": "GitHub Actions",
+                "component": "Endgame",
+                "severity": "error",
+                "custom_details": {
+                  "repository": "${{ github.repository }}",
+                  "workflow": "${{ github.workflow }}",
+                  "link": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                }
+              }
+            }'
