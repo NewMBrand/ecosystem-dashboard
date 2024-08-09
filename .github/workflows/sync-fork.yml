@@ -12,7 +12,7 @@ on:
           - 'master'
           - 'demo'
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/30 * * * *'
 
 env:
   UPSTREAM_REPO: 'makerdao-ses/ecosystem-dashboard'
@@ -20,12 +20,15 @@ env:
 jobs:
   sync_fork:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout everything
         id: checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT }}
 
       - name: Configure git
         id: configure_git
@@ -36,26 +39,30 @@ jobs:
       - name: Add upstream
         id: add_upstream
         run: |
-          git remote add upstream git@github.com:${{ env.UPSTREAM_REPO }}.git
+          git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
 
-      - name: Fetch upstream changes
-        id: fetch_upstream
+      - name: Sync fork
+        id: sync
+        shell: bash
+        env:
+          BRANCHES: ${{ ( github.event_name == 'schedule' || github.event.inputs.branch == 'all' ) && 'master demo' || github.event.inputs.branch }}
         run: |
-          git fetch upstream
-
-      - name: Sync staging branch
-        id: sync_staging
-        run: |
-          git checkout demo
-          git merge upstream/demo --no-edit
-          git push origin demo
-        
-      - name: Sync master branch
-        id: sync_master
-        run: |
-          git checkout master
-          git merge upstream/master --no-edit
-          git push origin master
+          for BRANCH in $BRANCHES; do
+            git checkout $BRANCH
+            git fetch upstream $BRANCH
+            git checkout upstream/$BRANCH
+            UPSTREAM_SHA_SHORT=$(git rev-parse --short HEAD)
+            git checkout $BRANCH
+            # Check if the latest commit from the upstream is already in the forked repo
+            if [ -z "$(git log | grep $UPSTREAM_SHA_SHORT)" ]; then
+              git merge upstream/$BRANCH --no-edit
+              git push origin $BRANCH
+              echo "Branch $BRANCH synced"
+            else
+              echo "Branch $BRANCH is already up to date"
+            fi
+            echo "Done with $BRANCH"
+          done
 
       - name: Send an alert to PagerDuty
         id: alert
