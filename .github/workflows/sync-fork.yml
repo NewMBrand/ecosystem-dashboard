@@ -48,14 +48,14 @@ jobs:
         run: |
           git checkout demo
           git merge upstream/demo --no-edit
-          git push https://x-access-token:${{ secrets.SYNC_FORK_PAT }}@github.com/${{ github.repository }}.git demo
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}.git demo
         
       - name: Sync master branch
         id: sync_master
         run: |
           git checkout master
           git merge upstream/master --no-edit
-          git push https://x-access-token:${{ secrets.SYNC_FORK_PAT }}@github.com/${{ github.repository }}.git master
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}.git master
 
       - name: Send an alert to PagerDuty
         id: alert
