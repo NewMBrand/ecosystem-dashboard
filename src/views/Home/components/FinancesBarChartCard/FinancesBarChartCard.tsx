@@ -7,7 +7,7 @@ import InternalLinkButton from '@/components/InternalLinkButton/InternalLinkButt
 import { MAKERBURN_URL } from '@/config/externalUrls';
 import { siteRoutes } from '@/config/routes';
 import FinancesBarChart from '@/views/Home/components/FinancesBarChart/FinancesBarChart';
-import type { RevenueAndSpendingRecords } from '../../api/queries';
+import type { RevenueAndSpendingRecords } from '../../api/revenueAndSpending';
 import type { ButtonProps } from '@mui/material';
 import type { FC } from 'react';
 
@@ -25,7 +25,6 @@ const FinancesBarChartCard: FC<FinancesBarChartCardProps> = ({ revenueAndSpendin
     <FinancesBarChartContainer>
       <div>
         <AnnualProfit>
-          <Text>*All values are converted to DAI</Text>
           <AnnualProfitLegend>
             <BlueLinesIcon />
             <Text>Annual Profit</Text>
@@ -132,7 +131,7 @@ const FinancesBarChartContainer = styled('div')(({ theme }) => ({
 
 const AnnualProfit = styled('div')(({ theme }) => ({
   display: 'flex',
-  justifyContent: 'space-between',
+  justifyContent: 'flex-end',
 
   [theme.breakpoints.up('tablet_768')]: {
     paddingLeft: 49,

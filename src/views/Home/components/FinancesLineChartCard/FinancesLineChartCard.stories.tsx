@@ -1,5 +1,5 @@
 import { createThemeModeVariants } from '@ses/core/utils/storybook/factories';
-import { financesLineChartCardData } from '@/views/Home/staticData';
+import { financesDataMocked } from '../../staticData';
 import FinancesLineChartCard from './FinancesLineChartCard';
 import type { Meta } from '@storybook/react';
 import type { FigmaParams } from 'sb-figma-comparator';
@@ -19,9 +19,7 @@ export default meta;
 
 const variantsArgs = [
   {
-    financesLineChartCard: {
-      tabButtonsTexts: financesLineChartCardData.tabButtonsTexts,
-    },
+    financesData: financesDataMocked,
   },
 ];
 

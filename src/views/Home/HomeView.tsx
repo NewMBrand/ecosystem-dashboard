@@ -14,23 +14,31 @@ import HeaderCard from './components/HeaderCard/HeaderCard';
 import RoadmapSection from './components/RoadmapSection/RoadmapSection';
 import { headerCardData, sectionsData } from './staticData';
 import useHomeView from './useHomeView';
-import type { RevenueAndSpendingRecords } from './api/queries';
+import type { FormattedFinancesData } from './api/finances';
+import type { RevenueAndSpendingRecords } from './api/revenueAndSpending';
 import type { FC } from 'react';
 
 export interface HomeViewProps {
   revenueAndSpendingData: RevenueAndSpendingRecords;
+  financesData: FormattedFinancesData;
   teams: Team[];
   governanceProposals: ExtendedExecutiveProposal[];
   roadmaps: Roadmap[];
 }
 
-const HomeView: FC<HomeViewProps> = ({ revenueAndSpendingData, teams, governanceProposals, roadmaps }) => {
+const HomeView: FC<HomeViewProps> = ({
+  revenueAndSpendingData,
+  financesData,
+  teams,
+  governanceProposals,
+  roadmaps,
+}) => {
   useHomeView();
 
   return (
     <HomeViewContainer>
       <SEOHead
-        title="Homepage title"
+        title="Homepage"
         description="Homepage description"
         image={{
           src: toAbsoluteURL('/assets/img/social-385x200.png'),
@@ -42,7 +50,7 @@ const HomeView: FC<HomeViewProps> = ({ revenueAndSpendingData, teams, governance
       <Container>
         <HeaderCard />
         <Section id={headerCardData.buttonTexts[0].toLowerCase()}>
-          <FinancesSection revenueAndSpendingData={revenueAndSpendingData} />
+          <FinancesSection revenueAndSpendingData={revenueAndSpendingData} financesData={financesData} />
         </Section>
         <Section id={headerCardData.buttonTexts[1].toLowerCase()}>
           <GovernanceSection governanceProposals={governanceProposals} />

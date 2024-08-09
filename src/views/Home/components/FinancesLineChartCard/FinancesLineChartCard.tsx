@@ -1,13 +1,13 @@
 import { Button, styled } from '@mui/material';
-
+import { useEffect, useState } from 'react';
 import Card from '@/components/Card/Card';
-
+import FilterButtonTab from '@/components/FilterButtonTab/FilterButtonTab';
+import InternalLinkButton from '@/components/InternalLinkButton/InternalLinkButton';
+import { siteRoutes } from '@/config/routes';
 import FinancesLineChart from '@/views/Home/components/FinancesLineChart/FinancesLineChart';
 import useFinancesLineChart from '@/views/Home/components/FinancesLineChart/useFinancesLineChart';
-
-import { financesLineChartCardData } from '@/views/Home/staticData';
-import useFinancesLineChartCard from './useFinancesLineChartCard';
-
+import useFinancesLineChartCard, { ExpenseBreakdownFilterOptions } from './useFinancesLineChartCard';
+import type { FormattedFinancesData, MetricKey } from '../../api/finances';
 import type { ButtonProps } from '@mui/material';
 import type { FC } from 'react';
 
@@ -15,42 +15,84 @@ interface TabButtonProps extends ButtonProps {
   isActive?: boolean;
 }
 
-const FinancesLineChartCard: FC = () => {
+interface FinancesLineChartCardProps {
+  financesData: FormattedFinancesData;
+}
+
+const FinancesLineChartCard: FC<FinancesLineChartCardProps> = ({ financesData }) => {
   useFinancesLineChart();
   const { activeTab, handleActiveTab } = useFinancesLineChartCard();
 
+  const [realizedExpensesFilter, setRealizedExpensesFilter] = useState<'Actuals' | 'Payments'>('Payments');
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>('PaymentsOnChain');
+  useEffect(() => {
+    switch (activeTab) {
+      case ExpenseBreakdownFilterOptions.REALIZED_EXPENSES:
+        return setSelectedMetric(realizedExpensesFilter === 'Payments' ? 'PaymentsOnChain' : 'Actuals'); // or Actuals
+      case ExpenseBreakdownFilterOptions.OPERATIONAL_RESERVES:
+        // ProtocolNetOutFlow - PaymentsOffChainIncluded
+        return setSelectedMetric('OperationalReserves');
+      case ExpenseBreakdownFilterOptions.FORECAST:
+        return setSelectedMetric('Forecast');
+    }
+  }, [activeTab, realizedExpensesFilter]);
+
   return (
     <Container>
-      <TabButtonsContainer>
-        <TabButton
-          isActive={activeTab === 0}
-          disableRipple
-          onClick={() => {
-            handleActiveTab(0);
+      <FilterContainer>
+        <TabButtonsContainer>
+          <TabButton
+            isActive={activeTab === ExpenseBreakdownFilterOptions.REALIZED_EXPENSES}
+            disableRipple
+            onClick={() => {
+              handleActiveTab(ExpenseBreakdownFilterOptions.REALIZED_EXPENSES);
+            }}
+          >
+            Realized Expenses
+          </TabButton>
+          <TabButton
+            isActive={activeTab === ExpenseBreakdownFilterOptions.OPERATIONAL_RESERVES}
+            disableRipple
+            onClick={() => {
+              handleActiveTab(ExpenseBreakdownFilterOptions.OPERATIONAL_RESERVES);
+            }}
+          >
+            Operational Reserves
+          </TabButton>
+          <TabButton
+            isActive={activeTab === ExpenseBreakdownFilterOptions.FORECAST}
+            disableRipple
+            onClick={() => {
+              handleActiveTab(ExpenseBreakdownFilterOptions.FORECAST);
+            }}
+          >
+            Forecast
+          </TabButton>
+        </TabButtonsContainer>
+
+        <FilterGroupContainer
+          style={{
+            visibility: activeTab === ExpenseBreakdownFilterOptions.REALIZED_EXPENSES ? 'visible' : 'hidden',
           }}
         >
-          {financesLineChartCardData.tabButtonsTexts[0]}
-        </TabButton>
-        <TabButton
-          isActive={activeTab === 1}
-          disableRipple
-          onClick={() => {
-            handleActiveTab(1);
-          }}
-        >
-          {financesLineChartCardData.tabButtonsTexts[1]}
-        </TabButton>
-        <TabButton
-          isActive={activeTab === 2}
-          disableRipple
-          onClick={() => {
-            handleActiveTab(2);
-          }}
-        >
-          {financesLineChartCardData.tabButtonsTexts[2]}
-        </TabButton>
-      </TabButtonsContainer>
-      <FinancesLineChart />
+          <FilterButtonTabStyled
+            label={'Actuals'}
+            handleChange={() => setRealizedExpensesFilter('Actuals')}
+            isSelect={realizedExpensesFilter === 'Actuals'}
+          />
+          <FilterButtonTabStyled
+            label={'Payments'}
+            handleChange={() => setRealizedExpensesFilter('Payments')}
+            isSelect={realizedExpensesFilter === 'Payments'}
+          />
+        </FilterGroupContainer>
+      </FilterContainer>
+
+      <FinancesLineChart financesData={financesData} selectedMetric={selectedMetric} />
+
+      <ExternalButtonContainer>
+        <InternalLinkButton label="Realized Expenses" buttonType="primary" href={siteRoutes.finances('/scopes')} />
+      </ExternalButtonContainer>
     </Container>
   );
 };
@@ -78,6 +120,26 @@ const Container = styled(Card)(({ theme }) => ({
   },
 }));
 
+const FilterContainer = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 16,
+  width: '100%',
+
+  [theme.breakpoints.up('tablet_768')]: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 24,
+    marginBottom: 16,
+  },
+
+  [theme.breakpoints.up('desktop_1280')]: {
+    flexDirection: 'column',
+    gap: 8,
+  },
+}));
+
 const TabButtonsContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   borderRadius: '12px 12px 0px 0px',
@@ -97,6 +159,13 @@ const TabButtonsContainer = styled('div')(({ theme }) => ({
     justifyContent: 'center',
     gap: 32,
   },
+}));
+
+const FilterGroupContainer = styled('div')(() => ({
+  display: 'flex',
+  gap: 8,
+  marginLeft: 'auto',
+  padding: '0 8px',
 }));
 
 const TabButton = styled(Button, {
@@ -192,3 +261,26 @@ const TabButton = styled(Button, {
     lineHeight: '24px',
   },
 }));
+
+const ExternalButtonContainer = styled('div')(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  marginTop: 24,
+
+  '& > a': {
+    padding: '2px 14px 2px 22px',
+  },
+
+  [theme.breakpoints.between('tablet_768', 'desktop_1024')]: {
+    marginTop: 16,
+  },
+}));
+
+const FilterButtonTabStyled = styled(FilterButtonTab)({
+  height: 32,
+  '& div': {
+    fontSize: 16,
+    linHeight: '24px',
+    letterSpacing: '-0.32px',
+  },
+});
