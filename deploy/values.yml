@@ -1,4 +1,4 @@
-replicaCount: 2
+replicaCount: ${REPLICA_COUNT}
 service:
   enabled: true
   name: ${APP_NAME}
@@ -38,7 +38,7 @@ podAnnotations:
 
 resources:
   limits:
-    cpu: 0.5
+    cpu: 0.25
     memory: 512Mi
   requests:
     cpu: 0.1
@@ -85,4 +85,8 @@ readinessProbe:
   timeoutSeconds: 10
 
 autoscaling:
-  enabled: false
+  enabled: true
+  minReplicas: ${AUTOSCALING_MIN_REPLICAS}
+  maxReplicas: ${AUTOSCALING_MAX_REPLICAS}
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 75
