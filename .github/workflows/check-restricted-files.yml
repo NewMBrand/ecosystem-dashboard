@@ -1,5 +1,3 @@
-# This check requires that 
-
 name: Check Restricted Files
 
 on:
@@ -28,11 +26,9 @@ jobs:
           ALLOWED_FILES=(
             "Dockerfile"
             ".dockerignore"
-            "dev-deploy.yaml"
             "prod-build-deploy.yml"
             "production-deploy.yaml"
             "staging-build-deploy.yml"
-            "staging-deploy.yaml"
             "check-restricted-files.yml"
             "sync-fork.yml"
             "action.yml"
