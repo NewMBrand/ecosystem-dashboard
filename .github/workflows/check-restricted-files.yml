@@ -27,7 +27,6 @@ jobs:
             "Dockerfile"
             ".dockerignore"
             "prod-build-deploy.yml"
-            "production-deploy.yaml"
             "staging-build-deploy.yml"
             "check-restricted-files.yml"
             "sync-fork.yml"
