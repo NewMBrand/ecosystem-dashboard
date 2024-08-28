@@ -32,6 +32,7 @@ jobs:
             "sync-fork.yml"
             "action.yml"
             "values.yml"
+            ".gitattributes"
           )
 
           unauthorized_files=""
