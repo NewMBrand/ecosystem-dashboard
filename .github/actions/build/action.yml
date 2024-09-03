@@ -25,6 +25,10 @@ inputs:
     description: 'The git SHA to use for the image tag'
     required: true
     default: ''
+  NEXT_PUBLIC_GRAPHQL_ENDPOINT:
+    description: 'The GraphQL endpoint'
+    required: true
+    default: ''
 
 runs:
   using: 'composite'
@@ -55,3 +59,5 @@ runs:
         cache-from: type=registry,ref=${{ inputs.ECR_REGISTRY }}/${{ inputs.ECR_REPO_NAME }}:buildcache
         cache-to: type=registry,ref=${{ inputs.ECR_REGISTRY }}/${{ inputs.ECR_REPO_NAME }}:buildcache,mode=max,image-manifest=true,oci-mediatypes=true
         provenance: false
+        build-args: |
+          NEXT_PUBLIC_GRAPHQL_ENDPOINT=${{ inputs.NEXT_PUBLIC_GRAPHQL_ENDPOINT }}
