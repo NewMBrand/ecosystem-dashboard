@@ -20,6 +20,11 @@ RUN \
 # 2. Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Declare the ARG and pass it to the environment during the build
+ARG NEXT_PUBLIC_GRAPHQL_ENDPOINT
+ENV NEXT_PUBLIC_GRAPHQL_ENDPOINT=$NEXT_PUBLIC_GRAPHQL_ENDPOINT
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
