@@ -38,11 +38,11 @@ podAnnotations:
 
 resources:
   limits:
-    cpu: 0.25
-    memory: 512Mi
+    cpu: 750m
+    memory: 1.5Gi
   requests:
-    cpu: 0.1
-    memory: 128Mi
+    cpu: 500m
+    memory: 768Mi
 
 env:
   NEXT_PUBLIC_ENVIRONMENT:
@@ -88,5 +88,5 @@ autoscaling:
   enabled: true
   minReplicas: ${AUTOSCALING_MIN_REPLICAS}
   maxReplicas: ${AUTOSCALING_MAX_REPLICAS}
-  targetCPUUtilizationPercentage: 75
-  targetMemoryUtilizationPercentage: 75
+  targetCPUUtilizationPercentage: 85
+  targetMemoryUtilizationPercentage: 85
